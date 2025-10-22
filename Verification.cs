@@ -5,10 +5,10 @@ public static class Verification
         return ProductDatabase.Products.Any(p => p.VerificationCode == code);
     }
 
-    public static string VerifyProductManually(string productName, string manufacturer)
+    public static string VerifyProductManually(string productName, string manufacturer, string NumberOfTeeth)
     {
         // Simple heuristic for demonstration
-        if (productName.Contains("Labubu") && manufacturer.Contains("Labubu Inc."))
+        if (productName.Contains("Labubu") && manufacturer.Contains("Labubu Inc.") && NumberOfTeeth == "9")
         {
             return "The product is probably real.";
         }

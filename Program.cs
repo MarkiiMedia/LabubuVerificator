@@ -48,7 +48,10 @@ internal class Program
             Console.WriteLine("Enter manufacturer:");
             string manufacturer = Console.ReadLine() ?? string.Empty;
 
-            string result = Verification.VerifyProductManually(productName, manufacturer);
+            Console.WriteLine("Enter number of teeth:");
+            string NumberOfTeeth = Console.ReadLine() ?? string.Empty;
+
+            string result = Verification.VerifyProductManually(productName, manufacturer, NumberOfTeeth);
             Console.WriteLine(result);
         }
     }
