@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("LabubuVerificator")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+753e4488fa584b200342d9a5e67629e3b654c56a")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9b031e8ab6f6a351bc8afbfdf0fb87af597a19bc")]
 [assembly: System.Reflection.AssemblyProductAttribute("LabubuVerificator")]
 [assembly: System.Reflection.AssemblyTitleAttribute("LabubuVerificator")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

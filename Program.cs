@@ -37,7 +37,7 @@ internal class Program
             string code = Console.ReadLine() ?? string.Empty;
 
             bool isVerified = Verification.VerifyProductByCode(code);
-            Console.WriteLine(isVerified ? "Product is verified!" : "Product verification failed.");
+            Console.WriteLine(isVerified ? "Product is verified! + some timestamp for first verification here from a database" : "Product verification failed.");
         }
 
         void VerifyManually()
