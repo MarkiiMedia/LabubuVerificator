@@ -38,7 +38,7 @@ internal class Program
 
             if (CodeVerification.VerifyCode(code, out var matched))
             {
-                Console.WriteLine("Product is verified!");
+                Console.WriteLine("Product is verified! YES!");
                 Console.WriteLine($"Product: {matched!.ProductName} by {matched!.Manufacturer}");
                 Console.WriteLine($"Verified at: {DateTime.UtcNow:O} (demo timestamp)");
             }
