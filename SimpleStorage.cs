@@ -33,10 +33,19 @@ public static class SimpleStorage
 
                     // Add FirstVerified column if it doesn't exist
                     cmd.CommandText = @"SELECT COUNT(*) FROM pragma_table_info('ValidCodes') WHERE name='FirstVerified';";
-                    var hasColumn = Convert.ToInt32(cmd.ExecuteScalar()) > 0;
-                    if (!hasColumn)
+                    var hasFirstVerified = Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+                    if (!hasFirstVerified)
                     {
                         cmd.CommandText = "ALTER TABLE ValidCodes ADD COLUMN FirstVerified TEXT;";
+                        cmd.ExecuteNonQuery();
+                    }
+
+                    // Add VerificationCount column if it doesn't exist
+                    cmd.CommandText = @"SELECT COUNT(*) FROM pragma_table_info('ValidCodes') WHERE name='VerificationCount';";
+                    var hasVerificationCount = Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+                    if (!hasVerificationCount)
+                    {
+                        cmd.CommandText = "ALTER TABLE ValidCodes ADD COLUMN VerificationCount INTEGER DEFAULT 0;";
                         cmd.ExecuteNonQuery();
                     }
                 }
@@ -150,36 +159,69 @@ public static class SimpleStorage
         }
     }
 
-    // Update or get first verification timestamp
-    public static string UpdateFirstVerification(string code)
+    // Update or get first verification timestamp and increment verification count
+    public static (string timestamp, int verificationCount) UpdateVerificationInfo(string code)
     {
-        if (string.IsNullOrEmpty(code)) return string.Empty;
+        if (string.IsNullOrEmpty(code)) return (string.Empty, 0);
         EnsureDatabase();
         var cs = new SqliteConnectionStringBuilder { DataSource = DbPath }.ToString();
         using (var conn = new SqliteConnection(cs))
         {
             conn.Open();
-            // First try to get existing timestamp
-            using (var cmd = conn.CreateCommand())
+            using (var trans = conn.BeginTransaction())
             {
-                cmd.CommandText = "SELECT FirstVerified FROM ValidCodes WHERE Code = @c;";
-                cmd.Parameters.AddWithValue("@c", code);
-                var existing = cmd.ExecuteScalar()?.ToString();
-                if (!string.IsNullOrEmpty(existing))
+                try
                 {
-                    return existing; // Return existing timestamp
+                    string timestamp;
+                    int count;
+
+                    // First try to get existing info
+                    using (var cmd = conn.CreateCommand())
+                    {
+                        cmd.Transaction = trans;
+                        cmd.CommandText = "SELECT FirstVerified, VerificationCount FROM ValidCodes WHERE Code = @c;";
+                        cmd.Parameters.AddWithValue("@c", code);
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                timestamp = reader.IsDBNull(0) ? string.Empty : reader.GetString(0);
+                                count = reader.IsDBNull(1) ? 0 : reader.GetInt32(1);
+                            }
+                            else
+                            {
+                                timestamp = string.Empty;
+                                count = 0;
+                            }
+                        }
+                    }
+
+                    // Update verification info
+                    using (var cmd = conn.CreateCommand())
+                    {
+                        cmd.Transaction = trans;
+                        if (string.IsNullOrEmpty(timestamp))
+                        {
+                            timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                            cmd.CommandText = "UPDATE ValidCodes SET FirstVerified = @t, VerificationCount = 1 WHERE Code = @c;";
+                            cmd.Parameters.AddWithValue("@t", timestamp);
+                        }
+                        else
+                        {
+                            cmd.CommandText = "UPDATE ValidCodes SET VerificationCount = VerificationCount + 1 WHERE Code = @c;";
+                        }
+                        cmd.Parameters.AddWithValue("@c", code);
+                        cmd.ExecuteNonQuery();
+                    }
+
+                    trans.Commit();
+                    return (timestamp, count + 1);
                 }
-            }
-            
-            // If no timestamp exists, update with current time
-            using (var cmd = conn.CreateCommand())
-            {
-                var now = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                cmd.CommandText = "UPDATE ValidCodes SET FirstVerified = @t WHERE Code = @c;";
-                cmd.Parameters.AddWithValue("@c", code);
-                cmd.Parameters.AddWithValue("@t", now);
-                cmd.ExecuteNonQuery();
-                return now; // Return new timestamp
+                catch
+                {
+                    trans.Rollback();
+                    throw;
+                }
             }
         }
     }

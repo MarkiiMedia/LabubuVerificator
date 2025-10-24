@@ -26,9 +26,9 @@ class Program
         if (ok)
         {
             var series = SimpleStorage.GetSeriesForCode(code);
-            var timestamp = SimpleStorage.UpdateFirstVerification(code);
-            var firstTimeMsg = string.IsNullOrEmpty(timestamp) ? "" : $"\nFirst verified: {timestamp}";
-            Console.WriteLine($"Code is valid! Series: {series}{firstTimeMsg}");
+            var (timestamp, verificationCount) = SimpleStorage.UpdateVerificationInfo(code);
+            var timeMsg = string.IsNullOrEmpty(timestamp) ? "" : $"\nFirst verified: {timestamp}";
+            Console.WriteLine($"Code is valid! Series: {series}{timeMsg}\nVerified {verificationCount} time{(verificationCount == 1 ? "" : "s")}");
         }
         else
         {
