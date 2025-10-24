@@ -28,7 +28,22 @@ class Program
             var series = SimpleStorage.GetSeriesForCode(code);
             var (timestamp, verificationCount) = SimpleStorage.UpdateVerificationInfo(code);
             var timeMsg = string.IsNullOrEmpty(timestamp) ? "" : $"\nFirst verified: {timestamp}";
-            Console.WriteLine($"Code is valid! Series: {series}{timeMsg}\nVerified {verificationCount} time{(verificationCount == 1 ? "" : "s")}");
+            
+            string statusMsg;
+            if (verificationCount == 1)
+            {
+                statusMsg = "First time ever checked MUNDUS";
+            }
+            else if (verificationCount >= 2 && verificationCount <= 4)
+            {
+                statusMsg = "Several checks have been made on this product MUNDUS";
+            }
+            else // 5 or more
+            {
+                statusMsg = "Product checked too many times, still genuine, but suspicious MUNDUS";
+            }
+
+            Console.WriteLine($"Code is valid! Series: {series}{timeMsg}\n{statusMsg}");
         }
         else
         {
