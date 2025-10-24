@@ -120,4 +120,23 @@ public static class SimpleStorage
         }
         return result;
     }
+
+    // Get the series name for a specific code
+    public static string GetSeriesForCode(string code)
+    {
+        if (string.IsNullOrEmpty(code)) return string.Empty;
+        EnsureDatabase();
+        var cs = new SqliteConnectionStringBuilder { DataSource = DbPath }.ToString();
+        using (var conn = new SqliteConnection(cs))
+        {
+            conn.Open();
+            using (var cmd = conn.CreateCommand())
+            {
+                cmd.CommandText = "SELECT Series FROM ValidCodes WHERE Code = @c;";
+                cmd.Parameters.AddWithValue("@c", code);
+                var result = cmd.ExecuteScalar();
+                return result?.ToString() ?? string.Empty;
+            }
+        }
+    }
 }

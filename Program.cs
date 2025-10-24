@@ -23,7 +23,15 @@ class Program
         Console.Write("Enter verification code: ");
         var code = Console.ReadLine() ?? string.Empty;
         bool ok = SimpleVerifier.SimpleVerifyCode(code);
-        Console.WriteLine(ok ? "Code is valid!" : "Code not found.");
+        if (ok)
+        {
+            var series = SimpleStorage.GetSeriesForCode(code);
+            Console.WriteLine($"Code is valid! Series: {series}");
+        }
+        else
+        {
+            Console.WriteLine("Code not found.");
+        }
     }
 
     static void VerifyManually()
