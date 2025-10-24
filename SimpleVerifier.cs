@@ -10,6 +10,18 @@ public static class SimpleVerifier
     public static bool SimpleVerifyCode(string code)
     {
         if (string.IsNullOrEmpty(code)) return false;
+
+        // Prefer checking the SQLite DB if present/initialized.
+        try
+        {
+            if (SimpleStorage.CodeExists(code)) return true;
+        }
+        catch
+        {
+            // If any DB error occurs, fall back to in-memory list (keeps behavior predictable for beginners)
+        }
+
+        // Fallback: simple in-memory lookup
         for (int i = 0; i < ValidCodes.Count; i++)
         {
             if (ValidCodes[i] == code) return true;
