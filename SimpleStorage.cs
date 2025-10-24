@@ -24,11 +24,21 @@ public static class SimpleStorage
                 conn.Open();
                 using (var cmd = conn.CreateCommand())
                 {
+                    // Create table if it doesn't exist (with minimal columns)
                     cmd.CommandText = @"CREATE TABLE IF NOT EXISTS ValidCodes (
                                             Code TEXT PRIMARY KEY,
                                             Series TEXT
                                          );";
                     cmd.ExecuteNonQuery();
+
+                    // Add FirstVerified column if it doesn't exist
+                    cmd.CommandText = @"SELECT COUNT(*) FROM pragma_table_info('ValidCodes') WHERE name='FirstVerified';";
+                    var hasColumn = Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+                    if (!hasColumn)
+                    {
+                        cmd.CommandText = "ALTER TABLE ValidCodes ADD COLUMN FirstVerified TEXT;";
+                        cmd.ExecuteNonQuery();
+                    }
                 }
 
                 // Seed defaults if table is empty
@@ -136,6 +146,40 @@ public static class SimpleStorage
                 cmd.Parameters.AddWithValue("@c", code);
                 var result = cmd.ExecuteScalar();
                 return result?.ToString() ?? string.Empty;
+            }
+        }
+    }
+
+    // Update or get first verification timestamp
+    public static string UpdateFirstVerification(string code)
+    {
+        if (string.IsNullOrEmpty(code)) return string.Empty;
+        EnsureDatabase();
+        var cs = new SqliteConnectionStringBuilder { DataSource = DbPath }.ToString();
+        using (var conn = new SqliteConnection(cs))
+        {
+            conn.Open();
+            // First try to get existing timestamp
+            using (var cmd = conn.CreateCommand())
+            {
+                cmd.CommandText = "SELECT FirstVerified FROM ValidCodes WHERE Code = @c;";
+                cmd.Parameters.AddWithValue("@c", code);
+                var existing = cmd.ExecuteScalar()?.ToString();
+                if (!string.IsNullOrEmpty(existing))
+                {
+                    return existing; // Return existing timestamp
+                }
+            }
+            
+            // If no timestamp exists, update with current time
+            using (var cmd = conn.CreateCommand())
+            {
+                var now = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                cmd.CommandText = "UPDATE ValidCodes SET FirstVerified = @t WHERE Code = @c;";
+                cmd.Parameters.AddWithValue("@c", code);
+                cmd.Parameters.AddWithValue("@t", now);
+                cmd.ExecuteNonQuery();
+                return now; // Return new timestamp
             }
         }
     }
