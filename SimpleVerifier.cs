@@ -41,8 +41,8 @@ public static class SimpleVerifier
             if (n.Contains("brown") || n.Contains("red")) score += 1;
         }
 
-        if (score >= 5) return "High";
-        if (score >= 3) return "Medium";
-        return "Low";
+        if (score >= 5) return "High score - Could be genuine";
+        if (score >= 3) return "Medium score - Likely genuine";
+        return "Low score - Likely not genuine";
     }
 }
