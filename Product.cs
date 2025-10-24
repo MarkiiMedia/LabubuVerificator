@@ -1,17 +1,28 @@
-public class Product
+public class PhysicalCharacteristics
 {
-    public required string VerificationCode { get; set; }
-    public required string NumberOfTeeth { get; set; } // Antal tænder skal være 9, ellers falsk. Grænseværdier kan her testes
-    public required string ProductName { get; set; }
-    public required string Manufacturer { get; set; }
-    // Add other relevant fields
+    // Physical / visual attributes used for the manual indicator
+    public int TeethCount { get; set; }
+    public int ColoredTeethCount { get; set; }
+    public string EarColor { get; set; } = string.Empty;
+    public string FurColor { get; set; } = string.Empty;
+    public bool EyesGlossy { get; set; }
+    public string NoseColor { get; set; } = string.Empty;
 }
 
-public static class ProductDatabase
+public static class PhysicalCharacteristicsDatabase
 {
-    public static List<Product> Products = new List<Product>
+    // Sample database for manual evaluation testing
+    public static List<PhysicalCharacteristics> SampleCharacteristics = new List<PhysicalCharacteristics>
     {
-        new Product { VerificationCode = "ABC123", ProductName = "Labubu Toy", Manufacturer = "Labubu Inc.", NumberOfTeeth = "9" },
-        // Add more sample products
+        new PhysicalCharacteristics
+        {
+            TeethCount = 9,
+            ColoredTeethCount = 0,
+            EarColor = "pink",
+            FurColor = "brown",
+            EyesGlossy = true,
+            NoseColor = "brown-red"
+        },
+        // Add more sample characteristics here for manual evaluation testing
     };
 }

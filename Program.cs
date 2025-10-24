@@ -36,22 +36,50 @@ internal class Program
             Console.WriteLine("Enter verification code:");
             string code = Console.ReadLine() ?? string.Empty;
 
-            bool isVerified = Verification.VerifyProductByCode(code);
-            Console.WriteLine(isVerified ? "Product is verified! + some timestamp for first verification here from a database" : "Product verification failed.");
+            if (CodeVerification.VerifyCode(code, out var matched))
+            {
+                Console.WriteLine("Product is verified!");
+                Console.WriteLine($"Product: {matched!.ProductName} by {matched!.Manufacturer}");
+                Console.WriteLine($"Verified at: {DateTime.UtcNow:O} (demo timestamp)");
+            }
+            else
+            {
+                Console.WriteLine("Product verification failed.");
+            }
         }
 
         void VerifyManually()
         {
-            Console.WriteLine("Enter product name:");
-            string productName = Console.ReadLine() ?? string.Empty;
-
-            Console.WriteLine("Enter manufacturer:");
-            string manufacturer = Console.ReadLine() ?? string.Empty;
-
             Console.WriteLine("Enter number of teeth:");
-            string NumberOfTeeth = Console.ReadLine() ?? string.Empty;
+            var teethInput = Console.ReadLine() ?? string.Empty;
+            int.TryParse(teethInput, out var teethCount);
 
-            string result = Verification.VerifyProductManually(productName, manufacturer, NumberOfTeeth);
+            Console.WriteLine("Enter number of colored teeth (if any):");
+            int.TryParse(Console.ReadLine() ?? string.Empty, out var coloredTeeth);
+
+            Console.WriteLine("Enter ear color:");
+            var earColor = Console.ReadLine() ?? string.Empty;
+
+            Console.WriteLine("Enter fur color:");
+            var furColor = Console.ReadLine() ?? string.Empty;
+
+            Console.WriteLine("Are the eyes glossy? (y/n):");
+            var eyesGlossy = (Console.ReadLine() ?? string.Empty).Trim().ToLower() == "y";
+
+            Console.WriteLine("Enter nose color (e.g. brown-red):");
+            var noseColor = Console.ReadLine() ?? string.Empty;
+
+            var characteristics = new PhysicalCharacteristics
+            {
+                TeethCount = teethCount,
+                ColoredTeethCount = coloredTeeth,
+                EarColor = earColor,
+                FurColor = furColor,
+                EyesGlossy = eyesGlossy,
+                NoseColor = noseColor
+            };
+
+            string result = ProductEvaluation.Evaluate(characteristics);
             Console.WriteLine(result);
         }
     }
