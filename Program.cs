@@ -7,15 +7,32 @@ class Program
 {
     static void Main()
     {
-        Console.WriteLine("Labubu Verifier - Simple Mode");
-        Console.WriteLine("1) Verify by code");
-        Console.WriteLine("2) Manual check (teeth, colored teeth, glossy eyes, nose color)");
-        Console.Write("Choose 1 or 2: ");
+        while (true)
+        {
+            Console.Clear(); // Clear screen for cleaner display
+            Console.WriteLine("Labubu Verifier - Simple Mode");
+            Console.WriteLine("1) Verify by code");
+            Console.WriteLine("2) Manual check (teeth, colored teeth, glossy eyes, nose color)");
+            Console.WriteLine("3) Exit program");
+            Console.Write("Choose 1-3: ");
 
-        var choice = (Console.ReadLine() ?? string.Empty).Trim();
-        if (choice == "1") VerifyByCode();
-        else if (choice == "2") VerifyManually();
-        else Console.WriteLine("Invalid choice. Exiting.");
+            var choice = (Console.ReadLine() ?? string.Empty).Trim();
+            if (choice == "1") VerifyByCode();
+            else if (choice == "2") VerifyManually();
+            else if (choice == "3") break;
+            else
+            {
+                Console.WriteLine("\nInvalid choice, press Enter to try again.");
+                Console.ReadLine();
+                continue;
+            }
+
+            if (choice == "1" || choice == "2")
+            {
+                Console.WriteLine("\nPress Enter to return to menu...");
+                Console.ReadLine();
+            }
+        }
     }
 
     static void VerifyByCode()
