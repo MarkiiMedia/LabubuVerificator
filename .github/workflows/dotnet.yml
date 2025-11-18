@@ -24,5 +24,5 @@ jobs:
         run: dotnet build --configuration Debug --no-restore
 
       - name: Run tests
-        # We use --no-build so tests run against the built DLL referenced by the test project
-        run: dotnet test --verbosity normal --no-build
+        # Let dotnet test build the test project so NuGet packages (xUnit) are available during compilation
+        run: dotnet test --verbosity normal
